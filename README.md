@@ -2,7 +2,7 @@
 
 This tool simulates the upcoming alien invasion.
 
-# Problem description
+## Problem description
 
 We start with a map of cities connected by roads, whatever graph, we don't assume grid or whether
 it's drawable on a plane. Aliens got into the cities, they move around, they fight and destroy
@@ -26,3 +26,17 @@ Assumptions about aliens:
   they may move back in the following round only.
 * If two or more aliens get into the same city then they fight. All the aliens in the city and the
   city is destroyed.
+
+## Running the code
+
+Unit tests (including example tests can be run with):
+
+```
+go test -v ./...
+```
+
+Running the simulation:
+
+```
+cat data/input-original.txt | go run ./cmd/aliens/
+```
