@@ -4,6 +4,8 @@ import (
 	"bufio"
 	"fmt"
 	"io"
+	"log"
+	"sort"
 	"strings"
 )
 
@@ -32,13 +34,26 @@ type cityDescription struct {
 }
 
 type World struct {
-	cities []cityDescription
+	cities       []cityDescription
+	cityNameToId map[string]int
+	graph        [][]int
 }
 
-func ParseWorld(reader io.Reader) (*World, error) {
+func InitWorld(reader io.Reader) (*World, error) {
+	w, err := parseWorldText(reader)
+	if err != nil {
+		return nil, err
+	}
+
+	w.calculateGraph()
+	return w, nil
+}
+
+func parseWorldText(reader io.Reader) (*World, error) {
 	ret := World{}
 
-	citiesSeen := map[string]bool{}
+	ret.cityNameToId = map[string]int{}
+	seenNeighbours := map[string]bool{}
 
 	scanner := bufio.NewScanner(reader)
 	for scanner.Scan() {
@@ -50,10 +65,11 @@ func ParseWorld(reader io.Reader) (*World, error) {
 		lineTokens := strings.Split(line, " ")
 		cityFrom := lineTokens[0]
 
-		if citiesSeen[cityFrom] {
+		_, alreadySpecifiedCity := ret.cityNameToId[cityFrom]
+		if alreadySpecifiedCity {
 			return nil, fmt.Errorf("Main city already seen [line: %s ]", line)
 		}
-		citiesSeen[cityFrom] = true
+		ret.cityNameToId[cityFrom] = len(ret.cities)
 
 		neighbours := [4]string{}
 		for _, road := range lineTokens[1:] {
@@ -75,12 +91,46 @@ func ParseWorld(reader io.Reader) (*World, error) {
 			}
 
 			neighbours[direction] = cityTo
+			seenNeighbours[cityTo] = true
 		}
 		ret.cities = append(ret.cities, cityDescription{
 			name:       cityFrom,
 			neighbours: neighbours})
 	}
+	unspecifiedNeighbours := []string{}
+	for city := range seenNeighbours {
+		_, specified := ret.cityNameToId[city]
+		if !specified {
+			unspecifiedNeighbours = append(unspecifiedNeighbours, city)
+		}
+	}
+	sort.Strings(unspecifiedNeighbours)
+	for _, city := range unspecifiedNeighbours {
+		ret.cityNameToId[city] = len(ret.cities)
+		ret.cities = append(ret.cities, cityDescription{name: city})
+	}
 	return &ret, nil
+}
+
+func (w *World) calculateGraph() {
+	w.graph = make([][]int, len(w.cities))
+	for fromId, city := range w.cities {
+		for _, neigh := range city.neighbours {
+			if neigh == "" {
+				continue
+			}
+
+			toId, ok := w.cityNameToId[neigh]
+			if !ok {
+				// This should not happen, it's not user error but a programmer error.
+				// We don't report error but exit with signal.
+				// Depending on the project's task this might be not a good solution.
+				log.Fatal("Logic error: map doesn't contain id")
+			}
+			w.graph[fromId] = append(w.graph[fromId], toId)
+			w.graph[toId] = append(w.graph[toId], fromId)
+		}
+	}
 }
 
 func (w World) Print(writer io.Writer) {
