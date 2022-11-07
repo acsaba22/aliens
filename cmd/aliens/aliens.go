@@ -1,16 +1,42 @@
 package main
 
 import (
+	"flag"
 	"log"
 	"os"
+	"strconv"
 
 	"github.com/acsaba22/aliens/invasion"
 )
 
+const USAGE = `Usage:
+
+cat input.txt | go run ./cmd/aliens N
+
+N = integer, number of aliens, should be smaller or equal then number of cities
+    in the input file
+`
+
 func main() {
-	w, err := invasion.ParseWorld(os.Stdin)
+	flag.Parse()
+	args := flag.Args()
+
+	if len(args) != 1 {
+		log.Fatalf("Expect 1 argument %d given.\n%s", len(args), USAGE)
+	}
+
+	n, err := strconv.Atoi(args[0])
+	if err != nil {
+		log.Fatalf("Failed to parse N (%s).\n%s", args[0], USAGE)
+	}
+
+	w, err := invasion.InitWorld(os.Stdin)
 	if err != nil {
 		log.Fatal(err)
 	}
-	w.Print(os.Stdout)
+
+	err = w.Simulate(os.Stdout, n)
+	if err != nil {
+		log.Fatalf("Error: %e", err)
+	}
 }

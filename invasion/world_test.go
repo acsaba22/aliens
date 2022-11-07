@@ -50,3 +50,32 @@ func TestParseCheckGraph(t *testing.T) {
 	require.Nil(t, err)
 	require.Equal(t, [][]int{{1}, {0, 2}, {1}}, w.graph)
 }
+
+func TestGenerateAliensFull(t *testing.T) {
+	aliens, err := generateAliens(5, 5)
+	require.Nil(t, err)
+	require.Equal(t, []int{0, 1, 2, 3, 4}, aliens)
+}
+
+func TestGenerateAliensHalf(t *testing.T) {
+	aliens, err := generateAliens(5, 10)
+	require.Nil(t, err)
+	require.Equal(t, 5, len(aliens))
+}
+
+func TestDestroyOneCity(t *testing.T) {
+	w, err := InitWorld(ToReader(
+		"one south=two",
+		"two south=three",
+		"three",
+	))
+	require.Nil(t, err)
+	w.aliens = []int{0, 2}
+	w.move()
+	require.Equal(t, []int{1, 1}, w.aliens)
+	require.Equal(t, []int{0, 2}, w.graph[1])
+	w.fight()
+	require.Equal(t, []int{}, w.aliens)
+	require.Equal(t, []int{}, w.graph[1])
+
+}

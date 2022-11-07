@@ -34,9 +34,11 @@ type cityDescription struct {
 }
 
 type World struct {
-	cities       []cityDescription
-	cityNameToId map[string]int
-	graph        [][]int
+	cities          []cityDescription
+	cityNameToId    map[string]int
+	graph           [][]int
+	aliens          []int // sorted list of cityIds
+	destroyedCities map[string]bool
 }
 
 func InitWorld(reader io.Reader) (*World, error) {
@@ -46,6 +48,8 @@ func InitWorld(reader io.Reader) (*World, error) {
 	}
 
 	w.calculateGraph()
+
+	w.destroyedCities = map[string]bool{}
 	return w, nil
 }
 
@@ -131,6 +135,18 @@ func (w *World) calculateGraph() {
 			w.graph[toId] = append(w.graph[toId], fromId)
 		}
 	}
+}
+
+// Modify w.graph. Remove roads going out from this city,
+// but also roads going towards this city from other places.
+func (w *World) destroyCity(cityId int) {
+	w.destroyedCities[w.cities[cityId].name] = true
+	for _, neighbour := range w.graph[cityId] {
+		if neighbour != cityId {
+			removeValues(&w.graph[neighbour], cityId)
+		}
+	}
+	w.graph[cityId] = []int{}
 }
 
 func (w World) Print(writer io.Writer) {
