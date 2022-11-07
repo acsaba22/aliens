@@ -43,5 +43,29 @@ go test -v ./...
 Running the simulation:
 
 ```
-cat data/input-original.txt | go run ./cmd/aliens/
+cat data/input-10_70.txt | go run ./cmd/aliens 7
 ```
+
+Generating input files:
+
+```
+go run ./cmd/generate 1000 70 > data/input-1000_70.txt
+```
+
+Running benchmark tests:
+
+```
+go test  -v -run=NONE -bench=. ./...
+```
+
+## Possible next steps
+
+Sync with client if the current output is satisfactory: e.g. "NY has been destroyed by 3 aliens!".
+This is contrary to the original request with Alien IDs.
+
+Testing is not perfect, it's not blackbox testing mostly because of the random number generation.
+Internal state is modified from tests.
+Possible solution could be:
+* A more controlled design where the input also specifies alien locations and movement strategy
+* Random number generator abstracted away so tests can specify their own. This would be probably
+  too brittle (acceptable code changes could brake the tests).
