@@ -1,0 +1,10 @@
+rlWGrMSAhB north=UubiDrvilE south=rQRBPTFmsg east=RuJCeMWTbl
+ZIyzpJrBSf north=uIgKsAwkiq
+ghFeMTojSk north=UubiDrvilE
+RuJCeMWTbl north=rQRBPTFmsg south=uIgKsAwkiq east=rlWGrMSAhB west=ezdxHLgLGd
+uIgKsAwkiq north=KKaawtPVhe south=vwOtSJHFZH east=rlWGrMSAhB west=KKaawtPVhe
+ezdxHLgLGd north=rQRBPTFmsg south=rQRBPTFmsg
+KKaawtPVhe north=RuJCeMWTbl south=rlWGrMSAhB east=ghFeMTojSk
+UubiDrvilE north=ezdxHLgLGd south=ZIyzpJrBSf east=vwOtSJHFZH west=ezdxHLgLGd
+vwOtSJHFZH north=RuJCeMWTbl south=ZIyzpJrBSf
+rQRBPTFmsg north=ZIyzpJrBSf south=UubiDrvilE east=ZIyzpJrBSf west=ZIyzpJrBSf
