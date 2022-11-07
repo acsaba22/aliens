@@ -35,7 +35,7 @@ func ExampleWorld_Simulate() {
 	w.Simulate(os.Stdout)
 	// Output:
 	// cityTwo has been destroyed by 2 aliens!
-	// Simulation stopped after 1 rounds, remaining cities:
+	// Simulation stopped after 1 rounds, 2 remaining cities:
 	// =======
 	// cityOne
 	// cityThree
