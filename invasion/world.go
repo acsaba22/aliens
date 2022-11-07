@@ -1,5 +1,10 @@
 package invasion
 
+// Useage world simulation in 3 steps:
+// w := InitWorld(os.Stdin)
+// w.GenerateAliens(n)
+// w.Simulate(os.Stdout)
+
 import (
 	"bufio"
 	"fmt"
@@ -34,11 +39,11 @@ type cityDescription struct {
 }
 
 type World struct {
-	cities          []cityDescription
-	cityNameToId    map[string]int
-	graph           [][]int
-	aliens          []int // sorted list of cityIds
-	destroyedCities map[string]bool
+	cities       []cityDescription
+	cityNameToId map[string]int
+	graph        [][]int
+	aliens       []int // sorted list of cityIds
+	isDestroyed  map[string]bool
 }
 
 func InitWorld(reader io.Reader) (*World, error) {
@@ -49,7 +54,8 @@ func InitWorld(reader io.Reader) (*World, error) {
 
 	w.calculateGraph()
 
-	w.destroyedCities = map[string]bool{}
+	w.isDestroyed = map[string]bool{}
+
 	return w, nil
 }
 
@@ -140,7 +146,7 @@ func (w *World) calculateGraph() {
 // Modify w.graph. Remove roads going out from this city,
 // but also roads going towards this city from other places.
 func (w *World) destroyCity(cityId int) {
-	w.destroyedCities[w.cities[cityId].name] = true
+	w.isDestroyed[w.cities[cityId].name] = true
 	for _, neighbour := range w.graph[cityId] {
 		if neighbour != cityId {
 			removeValues(&w.graph[neighbour], cityId)
@@ -151,10 +157,13 @@ func (w *World) destroyCity(cityId int) {
 
 func (w World) Print(writer io.Writer) {
 	for _, city := range w.cities {
+		if w.isDestroyed[city.name] {
+			continue
+		}
 		fmt.Fprintf(writer, "%s", city.name)
 		for d := North; d < 4; d++ {
 			neigh := city.neighbours[d]
-			if neigh != "" {
+			if neigh != "" && !w.isDestroyed[neigh] {
 				fmt.Fprintf(writer, " %s=%s", DirectionNames[d], neigh)
 			}
 		}

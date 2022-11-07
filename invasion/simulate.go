@@ -7,6 +7,8 @@ import (
 	"sort"
 )
 
+const MAXROUNDCOUNT = 10000
+
 // Generates n aliens in different cities
 func generateAliens(n, cityNum int) ([]int, error) {
 	if cityNum < n {
@@ -30,6 +32,12 @@ func generateAliens(n, cityNum int) ([]int, error) {
 	return ret, nil
 }
 
+func (w *World) GenerateAliens(n int) error {
+	var err error
+	w.aliens, err = generateAliens(n, len(w.cities))
+	return err
+}
+
 // Moves all aliens to a neighbouring city if possible.
 func (w *World) move() {
 	for i, cityId := range w.aliens {
@@ -44,7 +52,7 @@ func (w *World) move() {
 }
 
 // Finds aliens in the same city and removes the aliens and the cities
-func (w *World) fight() {
+func (w *World) fight(writer io.Writer) {
 	// find adjacent repeating values, remove them and destroy the cities
 	for start := 0; start < len(w.aliens); {
 		sameUntil := start + 1
@@ -53,6 +61,13 @@ func (w *World) fight() {
 		}
 		if 1 < sameUntil-start {
 			// Destroy city and aliens!
+
+			// TODO: check with client if alien ID's are necesarry.
+			//   Requested error message by client was
+			//   "CITY has been destroyed by alien NN and alien NN!"
+			// But current design treats aliens anonymously.
+			fmt.Fprintf(writer, "%s has been destroyed by %d aliens!\n",
+				w.cities[cityId].name, sameUntil-start)
 			w.destroyCity(cityId)
 			removeElements(&w.aliens, start, sameUntil)
 		} else {
@@ -61,11 +76,20 @@ func (w *World) fight() {
 	}
 }
 
-func (w *World) Simulate(writer io.Writer, n int) error {
-	aliens, err := generateAliens(n, len(w.cities))
-	if err != nil {
-		return err
+func (w *World) Simulate(writer io.Writer) {
+	round := 0
+	for ; 0 < len(w.aliens); round++ {
+		if MAXROUNDCOUNT <= round {
+			fmt.Fprintf(writer, "Maximum iteration reached, stopping\n")
+			break
+		}
+		w.move()
+		w.fight(writer)
 	}
-	fmt.Fprintf(writer, "aliens: %v\n", aliens)
-	return err
+	fmt.Fprintf(
+		writer,
+		"Simulation stopped after %d rounds, %d remaining cities:\n=======\n",
+		round,
+		len(w.cities)-len(w.isDestroyed))
+	w.Print(writer)
 }

@@ -1,5 +1,14 @@
 package invasion
 
+import (
+	"math/rand"
+	"time"
+)
+
+func init() {
+	rand.Seed(time.Now().UTC().UnixNano())
+}
+
 // Removes item index k.
 // Modifies the slice original slice.
 func removeElement[T any](s *[]T, k int) {

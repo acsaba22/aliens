@@ -1,6 +1,7 @@
 package invasion
 
 import (
+	"bytes"
 	"fmt"
 	"io"
 	"os"
@@ -17,6 +18,27 @@ var InputOriginal = []string{
 
 func ToReader(lines ...string) io.Reader {
 	return strings.NewReader(strings.Join(lines, "\n"))
+}
+
+func ExampleWorld_Simulate() {
+	w, err := InitWorld(ToReader(
+		"cityOne south=cityTwo",
+		"cityTwo south=cityThree",
+		"cityThree",
+	))
+	if err != nil {
+		fmt.Printf("%v\n", err)
+	}
+	// Not a complete blackbox testing, we replace random aliens with predetermined ones the hard way.
+	w.aliens = []int{0, 2}
+
+	w.Simulate(os.Stdout)
+	// Output:
+	// cityTwo has been destroyed by 2 aliens!
+	// Simulation stopped after 1 rounds, remaining cities:
+	// =======
+	// cityOne
+	// cityThree
 }
 
 func ExampleInitWorld_onlyParsing() {
@@ -74,8 +96,23 @@ func TestDestroyOneCity(t *testing.T) {
 	w.move()
 	require.Equal(t, []int{1, 1}, w.aliens)
 	require.Equal(t, []int{0, 2}, w.graph[1])
-	w.fight()
+	w.fight(&bytes.Buffer{})
 	require.Equal(t, []int{}, w.aliens)
 	require.Equal(t, []int{}, w.graph[1])
+}
 
+func ExampleWorld_Simulate_oneRoundFight() {
+	w, err := InitWorld(ToReader(
+		"cityOne south=cityTwo",
+		"cityTwo south=cityThree",
+		"cityThree",
+	))
+	if err != nil {
+		fmt.Printf("%v\n", err)
+	}
+	w.aliens = []int{0, 2}
+	w.move()
+	w.fight(os.Stdout)
+	// Output:
+	// cityTwo has been destroyed by 2 aliens!
 }

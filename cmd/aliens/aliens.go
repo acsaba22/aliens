@@ -35,8 +35,10 @@ func main() {
 		log.Fatal(err)
 	}
 
-	err = w.Simulate(os.Stdout, n)
+	err = w.GenerateAliens(n)
 	if err != nil {
-		log.Fatalf("Error: %e", err)
+		log.Fatalf("Error: %v", err)
 	}
+
+	w.Simulate(os.Stdout)
 }
