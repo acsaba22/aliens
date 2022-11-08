@@ -41,9 +41,9 @@ type cityDescription struct {
 type World struct {
 	cities       []cityDescription
 	cityNameToId map[string]int
-	graph        [][]int
-	aliens       []int // sorted list of cityIds
-	isDestroyed  map[string]bool
+	graph        [][]int         // current set of roads, roads are deleted on city destruction
+	aliens       []int           // sorted list of cityIds
+	isDestroyed  map[string]bool // used only to filter out cities during printing
 }
 
 func InitWorld(reader io.Reader) (*World, error) {

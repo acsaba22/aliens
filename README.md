@@ -78,16 +78,22 @@ Possible solution could be:
 The problem could have been interpreted in many ways. Some options:
 1) city grid.
 2) generic graph with one directional roads, this would have kept the connections of a city under 4.
-3) generic graph with two dimmensional roads.
+3) generic graph with two directional roads.
 
 I've chosen (3) because it more general then (1), accepts more inputs.
 
-I've chosen (3) over (2) because one direcitonal roads seems counter intuitive in a world.
+I've chosen (3) over (2) because one directional roads seems counter intuitive in a world.
 
-Because I've chosen (3), the reverse roads means that more than 4 connections can go out of a city,
-therefore in the final printing printing roads both ways is not always possible.
+Choosing (3) but not requiring roads to be mentioned both ways in the input made the task much
+harder:
+* A city can be mentioned in other cities lists more then 4 times, so it can have more than 4 roads
+* The above means that we can not print out simply all roads from a city. The solution applied was
+  to remember the original input too, and print out roads in the original direction if both cities
+  still exists. Additionally the bi-directional graph is stored separately and used for the
+  algorithm.
 
-So the original city description is kept in parallel with a generated graph of bi-directional roads.
+Retrospectively approach (2) would have been better, assuming single directional roads in the input
+and requiring the provider of the input to create roads in both directions roads.
 
 ### Distinct aliens
 
